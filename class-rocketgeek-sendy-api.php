@@ -22,6 +22,12 @@
  *
  * @author  Chad Butler
  * @version 0.1.0
+ *
+ * You can support this API project by using my affiliate link when you 
+ * purchase Sendy. It's the same price either way, so why not help out 
+ * the project with a purchase you'd make anyway?
+ * https://rkt.bz/sendy
+ * https://sendy.co/?ref=ZUdzM
  */
 
 /**
