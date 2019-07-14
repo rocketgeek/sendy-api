@@ -53,12 +53,13 @@ class RocketGeek_Sendy_API {
 	
 	public $api_key;
 	public $api_url;
+	public $list_id;
 	public $error;
 	
 	// Endpoints
 	public $subscribe_endpoint = '/subscribe';
 	public $unsubscribe_endpoint = '/unsubscribe';
-	public $delete_endpoint = '/api/subscribers/delete.php'; // @todo!!
+	public $delete_endpoint = '/api/subscribers/delete.php';
 	public $subscription_status_endpoint = '/api/subscribers/subscription-status.php';
 	public $active_subscriber_count_endpoint = '/api/subscribers/active-subscriber-count.php';
 	public $create_campaign_endpoint = '/api/campaigns/create.php';
@@ -67,12 +68,33 @@ class RocketGeek_Sendy_API {
 	 * Class constructor.
 	 *
 	 * @since 0.1.0
+	 *
+	 * @param  array $settings {
+	 *     An array of optional settings for the object.
+	 *
+	 *     @type  string  $api_key
+	 *     @type  string  $api_url
+	 *     @type  string  $list_id
+	 * }
 	 */
-	public function __construct( $settings ) {
-		$this->api_key = $settings['api_key'];
-		$this->api_url = $settings['api_url'];
+	public function __construct( $settings = array() ) {
+		$this->api_key = ( isset( $settings['api_key'] ) ) ? $settings['api_key'] : $this->api_key;
+		$this->api_url = ( isset( $settings['api_url'] ) ) ? $settings['api_url'] : $this->api_url;
+		$this->list_id = ( isset( $settings['list_id'] ) ) ? $settings['list_id'] : $this->list_id;
 	}
-	
+
+	/**
+	 * Determines the list ID.
+	 *
+	 * @since 0.1.0
+	 *
+	 * @param  string $list_id
+	 * @return string $list_id
+	 */
+	public function get_list_id( $list_id ) {
+		return ( $list_id ) ? $list_id : $this->list_id;
+	}
+
 	/**
 	 * Post to Sendy Endpoints
 	 *
@@ -81,7 +103,7 @@ class RocketGeek_Sendy_API {
 	 * @param  string  $url
 	 * @param  array   $fields
 	 * @param  bool    $use_curl
-	 * @return json    $result
+	 * @return string  $result
 	 */
 	public function post( $url, $fields, $use_curl = false ) {
 		
@@ -105,7 +127,6 @@ class RocketGeek_Sendy_API {
 		   $this->error = $response->get_error_message();
 		   return "Error: " . $this->error;
 		} else {
-			$response = $this->get_response( $response );
 			return $response;	
 		}
 	}
@@ -154,7 +175,7 @@ class RocketGeek_Sendy_API {
 	public function create_campaign( $data )	{
 		$url = $this->api_url . $this->create_campaign_endpoint;
 		$data['api_key'] = $this->api_key;
-		$campaign = $this->decode_response( $this->post( $url, $data ) );
+		$campaign = $this->post( $url, $data );
 	}
 	
 	/**
@@ -165,16 +186,15 @@ class RocketGeek_Sendy_API {
 	 * @param  string  $list_id
 	 * @return int     $result
 	 */
-	public function subscriber_count( $list_id ) {
-		$subscriber_count = $this->post(
+	public function subscriber_count( $list_id = false ) {
+		$result = $this->post(
 			$this->api_url . $this->active_subscriber_count_endpoint, 
 			$fields = array(
 				'api_key' => $this->api_key, 
-				'list_id' => $list_id
+				'list_id' => $this->get_list_id( $list_id ),
 				)
 			);
-		$subscriber_count = $this->decode_response( $subscriber_count, 'subscriber_count' );
-		return $subscriber_count['result'];
+		return $result;
 	}
 	
 	/**
@@ -186,17 +206,16 @@ class RocketGeek_Sendy_API {
 	 * @param  string  $list_id
 	 * @return string  $result
 	 */
-	public function subscriber_status( $email, $list_id ) {
-		$subscriber_status = $this->post(
+	public function subscriber_status( $email, $list_id = false ) {
+		$result  = $this->post(
 			$this->api_url . $this->subscription_status_endpoint, 
 			$fields = array(
 				'api_key' => $this->api_key, 
 				'email'   => $email, 
-				'list_id' => $list_id
+				'list_id' => $this->get_list_id( $list_id ),
 			)
 		);
-		$subscriber_status = $this->decode_response( $subscriber_status, 'subscriber_status' );
-		return $subscriber_status['result'];
+		return $result;
 	}
 	
 	/**
@@ -204,23 +223,19 @@ class RocketGeek_Sendy_API {
 	 *
 	 * @since 0.1.0
 	 *
-	 * @param  string  $name
 	 * @param  string  $email
+	 * @param  array   $custom_fields 
 	 * @param  string  $list_id
-	 * @param  bool    $boolean
-	 * @param  array   $custom_fields
-	 * @return string  $status
+	 * @return string  $result
 	 *
 	 * @todo Get rid of $name and make it part of $custom_fields
 	 */
-	public function subscribe( $name, $email, $list_id, $boolean, $custom_fields = false ) {
-		$url = $this->api_url . $this->subscribe_endpoint;
+	public function subscribe( $email, $boolean, $custom_fields = false, $list_id = false ) {
 		$fields = array(
 			'api_key' => $this->api_key,
-			'name'    => $name,
 			'email'   => $email, 
-			'list'    => $list_id,
-			'boolean' => $boolean
+			'list'    => $this->get_list_id( $list_id ),
+			'boolean' => "true",
 		);
 		if ( $custom_fields ) {
 			$custom_field_keys = array_keys( $custom_fields );
@@ -229,9 +244,12 @@ class RocketGeek_Sendy_API {
 				$fields[ $custom_field_keys[ $i ] ] = $custom_field;
 				$i++;
 			}
+			if ( isset( $custom_fields['name'] ) ) {
+				$fields['name'] = $custom_fields['name'];
+			}
 		}
-		$subscribe = $this->decode_response( $this->post( $url, $fields ), 'subscribe' );
-		return $subscribe['result'];
+		$result = $this->post( $this->api_url . $this->subscribe_endpoint, $fields );
+		return $result;
 	}
 	
 	/**
@@ -241,147 +259,34 @@ class RocketGeek_Sendy_API {
 	 *
 	 * @param  string  $email
 	 * @param  string  $list_id
-	 * @param  bool    $boolean
-	 * @return string  $status
+	 * @return string  $result
 	 */
-	public function unsubscribe( $email, $list_id, $boolean ) {
-		$url = $this->api_url . $this->unsubscribe_endpoint;
-		$unsubscribe = $this->post( $url, $fields = array(
+	public function unsubscribe( $email, $list_id = false ) {
+		$result = $this->post( $this->api_url . $this->unsubscribe_endpoint, $fields = array(
 			'api_key' => $this->api_key, 
 			'email'   => $email, 
-			'list'    => $list_id
-		));
-		$unsubscribe = $this->decode_response( $this->post( $url, $fields ), 'unsubscribe' );
-		return $unsubscribe['result'];
-	}
-
-	/**
-	 * Prepares HTTP API response.
-	 *
-	 * @since 0.1.0
-	 *
-	 * @param  string $response
-	 * @return array  $response
-	 */
-	function get_response( $response ) {
-		$api_response = wp_remote_retrieve_body( $response );
-		return $this->html_to_obj( $api_response );
+			'list'    => $this->get_list_id( $list_id ),
+			'boolean' => "true",
+		) );
+		return $result;
 	}
 	
 	/**
-	 * Utility function converts HTML to DOM object
-	 *
-	 * A utility function used in coverting Sendy's HTML string response 
-	 * to an array. This function uses the DOM object to convert.
-	 * 
-	 * Original concept from stackoverflow user scozy:
-	 * https://stackoverflow.com/questions/23062537/
+	 * Delete a user.
 	 *
 	 * @since 0.1.0
 	 *
-	 * @param  string  $html
-	 * @return object  $object
+	 * @param  string  $email
+	 * @param  string  $list_id
+	 * @return string  $result
 	 */
-	public function html_to_obj( $html ) {
-		$dom = new DOMDocument();
-		$dom->loadHTML( $html );
-		return $this->element_to_obj( $dom->documentElement );
-	}
-
-	/**
-	 * Utility function converts HTML to DOM object
-	 *
-	 * A utility function used in coverting Sendy's HTML string response 
-	 * to an array. This function is used by the html_to_obj method to 
-	 * recurse the HTML result.
-	 * 
-	 * Original concept from stackoverflow user scozy:
-	 * https://stackoverflow.com/questions/23062537/
-	 *
-	 * @since 0.1.0
-	 *
-	 * @param  string  $element
-	 * @return object  $obj
-	 */
-	function element_to_obj( $element ) {
-		if ( isset( $element->tagName ) ) {
-			$obj = array( 'tag' => $element->tagName );
-		}
-		if ( isset( $element->attributes ) ) {
-			foreach ( $element->attributes as $attribute ) {
-				$obj[ $attribute->name ] = $attribute->value;
-			}
-		}
-		if ( isset( $element->childNodes ) ) {
-			foreach ( $element->childNodes as $sub_element ) {
-				if ( $sub_element->nodeType == XML_TEXT_NODE ) {
-					$obj['html'] = $sub_element->wholeText;
-				} elseif ( $sub_element->nodeType == XML_CDATA_SECTION_NODE ) {
-					$obj['html'] = $sub_element->data;
-				} else {
-					$obj['children'][] = $this->element_to_obj( $sub_element );
-				}
-			}
-		}
-		return ( isset( $obj ) ) ? $obj : null;
-	}
-
-	/**
-	 * Decodes the API response.
-	 *
-	 * @since 0.1.0
-	 *
-	 * @param  array   $response
-	 * @param  string  $action
-	 * @return array   $result
-	 */
-	function decode_response( $response, $action ) {
-
-		switch ( $action ) {
-			case 'subscribe':
-				foreach ( $response['children'] as $child ) {
-					if ( 'head' == $child['tag'] ) {
-						foreach ( $child['children'] as $value ) {
-							if ( 'title' == $value['tag'] ) {
-								if ( "You're already subscribed!" == $value['html'] ) {
-									$result['result']  = 'already_subscribed';
-								} elseif ( "You're subscribed!" == $value['html'] ) {
-									$result['result']  = 'success';
-								} else {
-									$result['result']  = 'error';
-								}
-								break;
-							}
-						}
-					}
-				}
-				break;
-			case 'unsubscribe':
-				if ( "You're unsubscribed." == $response['children'][2]['children'][1]['children'][0]['html'] ) {
-					$result['result']  = 'success';
-				} elseif ( "Email does not exist." == $response['children'][2]['children'][1]['children'][0]['html'] ) {
-					$result['result']  = 'user_not_found';
-				} else {
-					$result['result']  = 'error';
-				}
-				break;
-			case 'subscriber_status':
-				$value = $response['children'][0]['children'][0]['html'];
-				if ( "Subscribed" == $value ) {
-					$result['result'] = "subscribed";
-				} elseif ( "Unsubscribed" == $value ) {
-					$result['result'] = "unsubscribed";
-				} elseif ( "Email does not exist in list" == $value ) {
-					$result['result'] = "user_not_found";
-				} else {
-					$result['result'] = 'error';
-				}
-				break;
-			case 'subscriber_count':
-				$result['result'] =  $response['children'][0]['children'][0]['html'];
-				break;
-		}
-		
+	public function delete( $email, $list_id = false ) {
+		$result = $this->post( $this->api_url . $this->delete_endpoint, $fields = array(
+			'api_key' => $this->api_key, 
+			'email'   => $email, 
+			'list_id' => $this->get_list_id( $list_id ),
+		) );
 		return $result;
 	}
+	
 }
