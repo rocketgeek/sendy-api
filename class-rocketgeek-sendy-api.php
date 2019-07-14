@@ -7,13 +7,6 @@
  * (https://github.com/nickian/Sendy-Extended-PHP-API-Wrapper) and modified for use in
  * Wordpress without cURL. Formatted to WordPress coding standards.
  *
- * Some additional utility functions were added to handle the WordPress
- * HTTP API as an array. This was originally taken from stackoverflow
- * user scozy and modified for this purpose. These functions are noted
- * individually in the object class.
- * Original concept:   https://stackoverflow.com/questions/23062537/
- * Modified framework: https://gist.github.com/rocketgeek/2f9fa1d36fd8fdcb788489e2cff4a276
- *
  * Key Documentation
  * Sendy API:          https://sendy.co/api
  * WordPress HTTP API: https://developer.wordpress.org/plugins/http-api/
