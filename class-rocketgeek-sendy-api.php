@@ -89,65 +89,6 @@ class RocketGeek_Sendy_API {
 	}
 
 	/**
-	 * Post to Sendy Endpoints
-	 *
-	 * @since 0.1.0
-	 *
-	 * @param  string  $url
-	 * @param  array   $fields
-	 * @param  bool    $use_curl
-	 * @return string  $result
-	 */
-	public function post( $url, $fields, $use_curl = false ) {
-		
-		if ( $use_curl ) {
-			$response = $this->curl_post( $url, $fields );
-		} else {
-			$response = wp_remote_post( esc_url_raw( $url ), array(
-				'method' => 'POST',
-				'timeout' => 45,
-				'redirection' => 5,
-				'httpversion' => '1.0',
-				'blocking' => true,
-				'headers' => array(),
-				'body' => $fields,
-				'cookies' => array()
-				)
-			);
-		}
-		
-		if ( is_wp_error( $response ) ) {
-		   $this->error = $response->get_error_message();
-		   return "Error: " . $this->error;
-		} else {
-			return $response;	
-		}
-	}
-	
-	/**
-	 * Original post function using cURL.
-	 *
-	 * @since 0.1.0
-	 *
-	 * @param  string  $url
-	 * @param  array   $fields
-	 * @return string  $result
-	 */
-	public function curl_post( $url, $fields ) {
-		$ch = curl_init();
-		curl_setopt_array( $ch, array(
-			CURLOPT_URL => $url,
-			CURLOPT_RETURNTRANSFER => TRUE,
-			CURLOPT_POSTFIELDS => http_build_query( $fields )
-		));
-		$result = curl_exec( $ch );
-		$http_status = curl_getinfo( $ch, CURLINFO_HTTP_CODE );
-		$result = array( 'result'=>$result, 'status'=>$http_status );
-		curl_close( $ch );
-		return $result;
-	}
-	
-	/**
 	 * Create and send a Campaign
 	 *
 	 * @since 0.1.0
@@ -281,5 +222,63 @@ class RocketGeek_Sendy_API {
 		) );
 		return $result;
 	}
+
+	/**
+	 * Post to Sendy Endpoints
+	 *
+	 * @since 0.1.0
+	 *
+	 * @param  string  $url
+	 * @param  array   $fields
+	 * @param  bool    $use_curl
+	 * @return string  $result
+	 */
+	private function post( $url, $fields, $use_curl = false ) {
+		
+		if ( $use_curl ) {
+			$response = $this->curl_post( $url, $fields );
+		} else {
+			$response = wp_remote_post( esc_url_raw( $url ), array(
+				'method' => 'POST',
+				'timeout' => 45,
+				'redirection' => 5,
+				'httpversion' => '1.0',
+				'blocking' => true,
+				'headers' => array(),
+				'body' => $fields,
+				'cookies' => array()
+				)
+			);
+		}
+		
+		if ( is_wp_error( $response ) ) {
+			$this->error = $response->get_error_message();
+			return "Error: " . $this->error;
+		} else {
+			return $response;
+		}
+	}
 	
+	/**
+	 * Original post function using cURL.
+	 *
+	 * @since 0.1.0
+	 *
+	 * @param  string  $url
+	 * @param  array   $fields
+	 * @return string  $result
+	 */
+	private function curl_post( $url, $fields ) {
+		$ch = curl_init();
+		curl_setopt_array( $ch, array(
+			CURLOPT_URL => $url,
+			CURLOPT_RETURNTRANSFER => TRUE,
+			CURLOPT_POSTFIELDS => http_build_query( $fields )
+		));
+		$result = curl_exec( $ch );
+		$http_status = curl_getinfo( $ch, CURLINFO_HTTP_CODE );
+		$result = array( 'result'=>$result, 'status'=>$http_status );
+		curl_close( $ch );
+		return $result;
+	}
 }
