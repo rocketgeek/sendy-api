@@ -7,34 +7,43 @@
  * (https://github.com/nickian/Sendy-Extended-PHP-API-Wrapper) and modified for use in
  * Wordpress without cURL. Formatted to WordPress coding standards.
  *
+ * You can support this API project by using my affiliate link when you 
+ * purchase Sendy. It's the same price either way, so why not help out 
+ * the project with a purchase you'd make anyway?
+ * https://rkt.bz/sendy
+ * https://sendy.co/?ref=ZUdzM
+ *
  * Key Documentation
  * Sendy API:          https://sendy.co/api
  * WordPress HTTP API: https://developer.wordpress.org/plugins/http-api/
  * This class:         https://github.com/rocketgeek/sendy-api
  * Nick's class:       https://github.com/nickian/Sendy-Extended-PHP-API-Wrapper
  *
- * @author  Chad Butler
- * @version 0.1.0
+ * @package    {Your Project Name}
+ * @subpackage RocketGeek_Sendy_API
+ * @version    0.1.0
  *
- * You can support this API project by using my affiliate link when you 
- * purchase Sendy. It's the same price either way, so why not help out 
- * the project with a purchase you'd make anyway?
- * https://rkt.bz/sendy
- * https://sendy.co/?ref=ZUdzM
- */
-
-/**
- * Usage:
+ * @link       https://github.com/rocketgeek/sendy-api/
+ * @author     Chad Butler <https://butlerblog.com>
+ * @author     RocketGeek <https://rocketgeek.com>
+ * @copyright  Copyright (c) 2019 Chad Butler
+ * @license    https://github.com/rocketgeek/jquery_tabs/blob/master/LICENSE.md GNU General Public License 3
  *
- * $settings = array( 'api_key'=>'your_sendy_api_key', 'api_url'=>'https://your_sendy_api_url.com' );
- * $sendy = new WP_Members_Sendy_API( $settings );
- * 
- * Subcribe a user:
- * $result = $sendy->subscribe( 'Joe', 'joe@smith.com', 'ASDFbaDF7se23Jad4JOH', true );
- * - results will be:
- * - - 'success' if the user was successfully subscribed
- * - - 'already_subscribed' if user is subscribed already
- * - - 'error' if the result failed
+ * This library is open source and GPL licensed. I hope you find it useful
+ * for your project(s). Attribution is appreciated ;-)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 // Exit if accessed directly.
