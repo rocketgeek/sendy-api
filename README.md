@@ -23,7 +23,7 @@ Add the object class to your project:
 ```
 global $sendy;
 $settings = array( 'api_key'=>'your_sendy_api_key', 'api_url'=>'https://your_sendy_api_url.com' );
-$sendy = new WP_Members_Sendy_API( $settings );
+$sendy = new RocketGeek_Sendy_API( $settings );
 ```
 
 Subscribe a user:
@@ -41,9 +41,13 @@ Unsubscribe a user:
 $result = $sendy->unsubscribe( $email );
 ```
 
-Other methods:
+Get the subscriber count of a specific list:
 ```
 $sendy->subscriber_count( $list_id );
+```
+
+Check a user's list status:
+```
 $sendy->subscriber_status( $email );
 ```
 

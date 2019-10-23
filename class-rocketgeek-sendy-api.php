@@ -4,8 +4,9 @@
  *
  * A wrapper class for the Sendy API using the WordPress
  * HTTP API.  Based on the Sendy API class by Nick Thompson
- * (https://github.com/nickian/Sendy-Extended-PHP-API-Wrapper) and modified for use in
- * Wordpress without cURL. Formatted to WordPress coding standards.
+ * (https://github.com/nickian/Sendy-Extended-PHP-API-Wrapper) and modified for
+ * use with the WordPress HTTP API instead of cURL. Formatted to WordPress 
+ * coding standards.
  *
  * You can support this API project by using my affiliate link when you 
  * purchase Sendy. It's the same price either way, so why not help out 
@@ -28,6 +29,8 @@
  * @author     RocketGeek <https://rocketgeek.com>
  * @copyright  Copyright (c) 2019 Chad Butler
  * @license    https://github.com/rocketgeek/jquery_tabs/blob/master/LICENSE.md GNU General Public License 3
+ *
+ * Copyright (c) 2019 Chad Butler, RocketGeek
  *
  * This library is open source and GPL licensed. I hope you find it useful
  * for your project(s). Attribution is appreciated ;-)
@@ -56,6 +59,7 @@ class RocketGeek_Sendy_API {
 	public $api_key;
 	public $api_url;
 	public $list_id;
+	public $use_curl;
 	public $error;
 	
 	// Endpoints
@@ -126,7 +130,7 @@ class RocketGeek_Sendy_API {
 	 *
 	 * @since 0.1.0
 	 *
-	 * @param  string  $list_id
+	 * @param  string  $list_id  List ID to check (optional|default: $this->list_id)
 	 * @return int     $result
 	 */
 	public function subscriber_count( $list_id = false ) {
@@ -145,8 +149,8 @@ class RocketGeek_Sendy_API {
 	 *
 	 * @since 0.1.0
 	 *
-	 * @param  string  $email
-	 * @param  string  $list_id
+	 * @param  string  $email    The email to check (required)
+	 * @param  string  $list_id  List ID to check (optional|default: $this->list_id)
 	 * @return string  $result
 	 */
 	public function subscriber_status( $email, $list_id = false ) {
@@ -166,9 +170,10 @@ class RocketGeek_Sendy_API {
 	 *
 	 * @since 0.1.0
 	 *
-	 * @param  string  $email
-	 * @param  array   $custom_fields 
-	 * @param  string  $list_id
+	 * @param  string  $email          The email to subscribe (required)
+	 * @param  boolean $boolean
+	 * @param  array   $custom_fields  Any additional custom fields (optional)
+	 * @param  string  $list_id        List ID to subscribe to (optional|default: $this->list_id)
 	 * @return string  $result
 	 *
 	 * @todo Get rid of $name and make it part of $custom_fields
@@ -200,8 +205,8 @@ class RocketGeek_Sendy_API {
 	 *
 	 * @since 0.1.0
 	 *
-	 * @param  string  $email
-	 * @param  string  $list_id
+	 * @param  string  $email    The email to unsubscribe (required)
+	 * @param  string  $list_id  List ID to unsubscribe from (optional|default: $this->list_id)
 	 * @return string  $result
 	 */
 	public function unsubscribe( $email, $list_id = false ) {
@@ -219,8 +224,8 @@ class RocketGeek_Sendy_API {
 	 *
 	 * @since 0.1.0
 	 *
-	 * @param  string  $email
-	 * @param  string  $list_id
+	 * @param  string  $email    The email to delete (required)
+	 * @param  string  $list_id  List ID to delete user from (optional|default: $this->list_id)
 	 * @return string  $result
 	 */
 	public function delete( $email, $list_id = false ) {
@@ -237,17 +242,16 @@ class RocketGeek_Sendy_API {
 	 *
 	 * @since 0.1.0
 	 *
-	 * @param  string  $url
+	 * @param  string  $endpoint
 	 * @param  array   $fields
-	 * @param  bool    $use_curl
 	 * @return string  $result
 	 */
-	private function post( $url, $fields, $use_curl = false ) {
+	private function post( $enpoint, $fields ) {
 		
-		if ( $use_curl ) {
-			$response = $this->curl_post( $url, $fields );
+		if ( $this->use_curl ) {
+			$response = $this->curl_post( $enpoint, $fields );
 		} else {
-			$response = wp_remote_post( esc_url_raw( $url ), array(
+			$response = wp_remote_post( esc_url_raw( $enpoint ), array(
 				'method' => 'POST',
 				'timeout' => 45,
 				'redirection' => 5,
