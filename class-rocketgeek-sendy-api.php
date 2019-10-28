@@ -143,7 +143,7 @@ class RocketGeek_Sendy_API {
 				'list_id' => $this->get_list_id( $list_id ),
 				)
 			);
-		return $result;
+		return $result['body'];
 	}
 	
 	/**
@@ -153,7 +153,20 @@ class RocketGeek_Sendy_API {
 	 *
 	 * @param  string  $email    The email to check (required)
 	 * @param  string  $list_id  List ID to check (optional|default: $this->list_id)
-	 * @return string  $result
+	 * @return string  $result {
+	 *  	Success: Subscribed
+	 *		Success: Unsubscribed
+	 *		Success: Unconfirmed
+	 *		Success: Bounced
+	 *		Success: Soft bounced
+	 *		Success: Complained
+	 *		Error: No data passed
+	 *		Error: API key not passed
+	 *		Error: Invalid API key
+	 *		Error: Email not passed
+	 *		Error: List ID not passed
+	 *		Error: Email does not exist in list
+	 * }
 	 */
 	public function subscriber_status( $email, $list_id = false ) {
 		$result  = $this->post(
@@ -164,7 +177,7 @@ class RocketGeek_Sendy_API {
 				'list_id' => $this->get_list_id( $list_id ),
 			)
 		);
-		return $result;
+		return $result['body'];
 	}
 	
 	/**
@@ -175,7 +188,7 @@ class RocketGeek_Sendy_API {
 	 * @param  string  $email          The email to subscribe (required)
 	 * @param  array   $custom_fields  Any additional custom fields (optional)
 	 * @param  string  $list_id        List ID to subscribe to (optional|default: $this->list_id)
-	 * @return string  $result
+	 * @return string  $result         true|Some fields are missing.|Invalid email address.|Invalid list ID.|Already subscribed.|Email is suppressed.
 	 *
 	 * @todo Get rid of $name and make it part of $custom_fields
 	 */
@@ -199,7 +212,7 @@ class RocketGeek_Sendy_API {
 			}
 		}
 		$result = $this->post( $this->api_url . $this->subscribe_endpoint, $fields );
-		return $result;
+		return $result['body'];
 	}
 	
 	/**
@@ -209,7 +222,7 @@ class RocketGeek_Sendy_API {
 	 *
 	 * @param  string  $email    The email to unsubscribe (required)
 	 * @param  string  $list_id  List ID to unsubscribe from (optional|default: $this->list_id)
-	 * @return string  $result
+	 * @return string  $result   true|Some fields are missing.|Invalid email address.|Email does not exist.
 	 */
 	public function unsubscribe( $email, $list_id = false ) {
 		$result = $this->post( $this->api_url . $this->unsubscribe_endpoint, $fields = array(
@@ -218,7 +231,7 @@ class RocketGeek_Sendy_API {
 			'list'    => $this->get_list_id( $list_id ),
 			'boolean' => "true",
 		) );
-		return $result;
+		return $result['body'];
 	}
 	
 	/**
@@ -228,7 +241,7 @@ class RocketGeek_Sendy_API {
 	 *
 	 * @param  string  $email    The email to delete (required)
 	 * @param  string  $list_id  List ID to delete user from (optional|default: $this->list_id)
-	 * @return string  $result
+	 * @return string  $result   true|No data passed|API key not passed|Invalid API key|List ID not passed|List does not exist|Email address not passed|Subscriber does not exist
 	 */
 	public function delete( $email, $list_id = false ) {
 		$result = $this->post( $this->api_url . $this->delete_endpoint, $fields = array(
@@ -236,7 +249,7 @@ class RocketGeek_Sendy_API {
 			'email'   => $email, 
 			'list_id' => $this->get_list_id( $list_id ),
 		) );
-		return $result;
+		return $result['body'];
 	}
 
 	/**

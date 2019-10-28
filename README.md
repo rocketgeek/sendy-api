@@ -35,15 +35,19 @@ $result = $sendy->subscribe( 'joe@smith.com' );
 $result = $sendy->subscribe( 'joe@smith.com', array( 'name'=>'Joe Smith' ), '123ABC456DEG' );
 ```
 
-Results will be:
- * 'success' if the user was successfully subscribed
- * 'already_subscribed' if user is subscribed already
- * 'error' if the result failed
+Results: true|Some fields are missing.|Invalid email address.|Invalid list ID.|Already subscribed.|Email is suppressed
 
 Unsubscribe a user:
 ```
 $result = $sendy->unsubscribe( $email );
 ```
+Results: true|Some fields are missing.|Invalid email address.|Email does not exist.
+```
+$result = $sendy->delete( $email );
+```
+Delete a user:
+
+Results: true|No data passed|API key not passed|Invalid API key|List ID not passed|List does not exist|Email address not passed|Subscriber does not exist
 
 Get the subscriber count of a specific list:
 ```
