@@ -173,14 +173,13 @@ class RocketGeek_Sendy_API {
 	 * @since 0.1.0
 	 *
 	 * @param  string  $email          The email to subscribe (required)
-	 * @param  boolean $boolean
 	 * @param  array   $custom_fields  Any additional custom fields (optional)
 	 * @param  string  $list_id        List ID to subscribe to (optional|default: $this->list_id)
 	 * @return string  $result
 	 *
 	 * @todo Get rid of $name and make it part of $custom_fields
 	 */
-	public function subscribe( $email, $boolean, $custom_fields = false, $list_id = false ) {
+	public function subscribe( $email, $custom_fields = false, $list_id = false ) {
 		$fields = array(
 			'api_key' => $this->api_key,
 			'email'   => $email, 
@@ -190,12 +189,13 @@ class RocketGeek_Sendy_API {
 		if ( $custom_fields ) {
 			$custom_field_keys = array_keys( $custom_fields );
 			$i = 0;
-			foreach( $custom_fields as $custom_field ) {
-				$fields[ $custom_field_keys[ $i ] ] = $custom_field;
-				$i++;
-			}
-			if ( isset( $custom_fields['name'] ) ) {
-				$fields['name'] = $custom_fields['name'];
+			foreach( $custom_fields as $key => $custom_field ) {
+				if ( 'name' == $key ) {
+					$fields['name'] = $custom_field;
+				} else {
+					$fields[ $custom_field_keys[ $i ] ] = $custom_field;
+					$i++;
+				}
 			}
 		}
 		$result = $this->post( $this->api_url . $this->subscribe_endpoint, $fields );
