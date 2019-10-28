@@ -81,12 +81,14 @@ class RocketGeek_Sendy_API {
 	 *     @type  string  $api_key
 	 *     @type  string  $api_url
 	 *     @type  string  $list_id
+	 *     @type  boolean $use_curl
 	 * }
 	 */
 	public function __construct( $settings = array() ) {
-		$this->api_key = ( isset( $settings['api_key'] ) ) ? $settings['api_key'] : $this->api_key;
-		$this->api_url = ( isset( $settings['api_url'] ) ) ? $settings['api_url'] : $this->api_url;
-		$this->list_id = ( isset( $settings['list_id'] ) ) ? $settings['list_id'] : $this->list_id;
+		$this->api_key  = ( isset( $settings['api_key']  ) ) ? $settings['api_key']  : $this->api_key;
+		$this->api_url  = ( isset( $settings['api_url']  ) ) ? $settings['api_url']  : $this->api_url;
+		$this->list_id  = ( isset( $settings['list_id']  ) ) ? $settings['list_id']  : $this->list_id;
+		$this->use_curl = ( isset( $settings['use_curl'] ) ) ? $settings['use_curl'] : false;
 	}
 
 	/**
