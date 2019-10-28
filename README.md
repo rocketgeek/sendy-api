@@ -28,7 +28,11 @@ $sendy = new RocketGeek_Sendy_API( $settings );
 
 Subscribe a user:
 ```
-$result = $sendy->subscribe( 'Joe', 'joe@smith.com', 'ASDFbaDF7se23Jad4JOH', true );
+// Just an email (minimum required data):
+$result = $sendy->subscribe( 'joe@smith.com' );
+
+// Email, name (custom field), and custom list ID:
+$result = $sendy->subscribe( 'joe@smith.com', array( 'name'=>'Joe Smith' ), '123ABC456DEG' );
 ```
 
 Results will be:
