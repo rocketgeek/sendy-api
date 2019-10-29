@@ -20,9 +20,9 @@
  * This class:         https://github.com/rocketgeek/sendy-api
  * Nick's class:       https://github.com/nickian/Sendy-Extended-PHP-API-Wrapper
  *
- * @package    {Your Project Name}
+ * @package    WP_Members_Sendy
  * @subpackage RocketGeek_Sendy_API
- * @version    0.1.0
+ * @version    1.0.0
  *
  * @link       https://github.com/rocketgeek/sendy-api/
  * @author     Chad Butler <https://butlerblog.com>
@@ -56,10 +56,39 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class RocketGeek_Sendy_API {
 	
+	/**
+	 * The Sendy API key
+	 *
+	 * @var string
+	 */
 	public $api_key;
+	
+	/**
+	 * The Sendy API URL (no trailing slash)
+	 *
+	 * @var string
+	 */
 	public $api_url;
+	
+	/**
+	 * The Sendy List ID
+	 *
+	 * @var string
+	 */
 	public $list_id;
+	
+	/**
+	 * cURL toggle
+	 *
+	 * @var boolean (true to enable cURL|false to use wp_remote_post())
+	 */
 	public $use_curl;
+	
+	/**
+	 * Error container
+	 *
+	 * @var stdClass WP_Error object
+	 */
 	public $error;
 	
 	// Endpoints
@@ -81,7 +110,7 @@ class RocketGeek_Sendy_API {
 	 *     @type  string  $api_key
 	 *     @type  string  $api_url
 	 *     @type  string  $list_id
-	 *     @type  boolean $use_curl
+	 *     @type  boolean $use_curl  True to use cURL, false to use wp_remote_post() (default:false)
 	 * }
 	 */
 	public function __construct( $settings = array() ) {
@@ -101,30 +130,6 @@ class RocketGeek_Sendy_API {
 	 */
 	public function get_list_id( $list_id ) {
 		return ( $list_id ) ? $list_id : $this->list_id;
-	}
-
-	/**
-	 * Create and send a Campaign
-	 *
-	 * @since 0.1.0
-	 *
-	 * @param  array  $data {
-	 *     @type  string  $api_key
-	 *     @type  string  $from_name
-	 *     @type  string  $from_email
-	 *     @type  string  $reply_to
-	 *     @type  string  $subject
-	 *     @type  string  $plain_text
-	 *     @type  string  $html_text
-	 *     @type  string  $list_ids (comma-separated)
-	 *     @type  string  $brand_id (required if you are creating a draft, send_campaign set to 0 or left as default)
-	 *     @type  string  $send_campaign (set to 1 if you want to send the campaign)
-	 * }
-	 */
-	public function create_campaign( $data )	{
-		$url = $this->api_url . $this->create_campaign_endpoint;
-		$data['api_key'] = $this->api_key;
-		$campaign = $this->post( $url, $data );
 	}
 	
 	/**
@@ -154,18 +159,19 @@ class RocketGeek_Sendy_API {
 	 * @param  string  $email    The email to check (required)
 	 * @param  string  $list_id  List ID to check (optional|default: $this->list_id)
 	 * @return string  $result {
-	 *  	Success: Subscribed
-	 *		Success: Unsubscribed
-	 *		Success: Unconfirmed
-	 *		Success: Bounced
-	 *		Success: Soft bounced
-	 *		Success: Complained
-	 *		Error: No data passed
-	 *		Error: API key not passed
-	 *		Error: Invalid API key
-	 *		Error: Email not passed
-	 *		Error: List ID not passed
-	 *		Error: Email does not exist in list
+	 *     Possible return strings:
+	 *     Success: Subscribed
+	 *     Success: Unsubscribed
+	 *     Success: Unconfirmed
+	 *     Success: Bounced
+	 *     Success: Soft bounced
+	 *     Success: Complained
+	 *     Error: No data passed
+	 *     Error: API key not passed
+	 *     Error: Invalid API key
+	 *     Error: Email not passed
+	 *     Error: List ID not passed
+	 *     Error: Email does not exist in list
 	 * }
 	 */
 	public function subscriber_status( $email, $list_id = false ) {
@@ -188,9 +194,14 @@ class RocketGeek_Sendy_API {
 	 * @param  string  $email          The email to subscribe (required)
 	 * @param  array   $custom_fields  Any additional custom fields (optional)
 	 * @param  string  $list_id        List ID to subscribe to (optional|default: $this->list_id)
-	 * @return string  $result         true|Some fields are missing.|Invalid email address.|Invalid list ID.|Already subscribed.|Email is suppressed.
-	 *
-	 * @todo Get rid of $name and make it part of $custom_fields
+	 * @return mixed   $result {
+	 *     Boolean (true) on success. Other possibilities (errors) are strings:
+	 *     Error:   Some fields are missing.
+	 *     Error:   Invalid email address.
+	 *     Error:   Invalid list ID.
+	 *     Error:   Already subscribed.
+	 *     Error:   Email is suppressed.
+	 * }
 	 */
 	public function subscribe( $email, $custom_fields = false, $list_id = false ) {
 		$fields = array(
@@ -222,7 +233,12 @@ class RocketGeek_Sendy_API {
 	 *
 	 * @param  string  $email    The email to unsubscribe (required)
 	 * @param  string  $list_id  List ID to unsubscribe from (optional|default: $this->list_id)
-	 * @return string  $result   true|Some fields are missing.|Invalid email address.|Email does not exist.
+	 * @return mixed   $result {
+	 *     Boolean (true) on success. Other possibilities (errors) are strings:
+	 *     Error: Some fields are missing.
+	 *     Error: Invalid email address.
+	 *     Error: Email does not exist.
+	 * }
 	 */
 	public function unsubscribe( $email, $list_id = false ) {
 		$result = $this->post( $this->api_url . $this->unsubscribe_endpoint, $fields = array(
@@ -241,7 +257,16 @@ class RocketGeek_Sendy_API {
 	 *
 	 * @param  string  $email    The email to delete (required)
 	 * @param  string  $list_id  List ID to delete user from (optional|default: $this->list_id)
-	 * @return string  $result   true|No data passed|API key not passed|Invalid API key|List ID not passed|List does not exist|Email address not passed|Subscriber does not exist
+	 * @return mixed   $result {
+	 *     Boolean (true) on success. Other possibilities (errors) are strings:
+	 *     Error: No data passed
+	 *     Error: API key not passed
+	 *     Error: Invalid API key
+	 *     Error: List ID not passed
+	 *     Error: List does not exist
+	 *     Error: Email address not passed
+	 *     Error: Subscriber does not exist
+	 * }
 	 */
 	public function delete( $email, $list_id = false ) {
 		$result = $this->post( $this->api_url . $this->delete_endpoint, $fields = array(
@@ -252,6 +277,55 @@ class RocketGeek_Sendy_API {
 		return $result['body'];
 	}
 
+	/**
+	 * Create and send a Campaign
+	 *
+	 * @since 0.1.0
+	 *
+	 * @param  array  $data {
+	 *     @type  string  $api_key
+	 *     @type  string  $from_name
+	 *     @type  string  $from_email
+	 *     @type  string  $reply_to
+	 *     @type  string  $subject
+	 *     @type  string  $plain_text
+	 *     @type  string  $html_text
+	 *     @type  string  $list_ids              (comma-separated)
+	 *     @type  string  $segment_ids           Required only if you set send_campaign to 1 and no list_ids are passed in. Segment IDs should be single or comma-separated. Segment ids can be found in the segments setup page.
+	 *     @type  string  $exclude_list_ids      Lists to exclude from your campaign. List IDs should be single or comma-separated. The encrypted & hashed ids can be found under View all lists section named ID. (optional)
+	 *     @type  string  $exclude_segments_ids  Segments to exclude from your campaign. Segment IDs should be single or comma-separated. Segment ids can be found in the segments setup page. (optional)
+	 *     @type  string  $brand_id              (required if you are creating a draft, send_campaign set to 0 or left as default)
+	 *     @type  string  $query_string          eg. Google Analytics tags (optional)
+	 *     @type  string  $send_campaign         (set to 1 if you want to send the campaign)
+	 * }
+	 * @return string {
+	 *     Possible return strings
+	 *     Success: Campaign created
+	 *     Success: Campaign created and now sending
+	 *     Error: No data passed
+	 *     Error: API key not passed
+	 *     Error: Invalid API key
+	 *     Error: From name not passed
+	 *     Error: From email not passed
+	 *     Error: Reply to email not passed
+	 *     Error: Subject not passed
+	 *     Error: HTML not passed
+	 *     Error: List or segment ID(s) not passed
+	 *     Error: One or more list IDs are invalid
+	 *     Error: One or more segment IDs are invalid
+	 *     Error: List or segment IDs does not belong to a single brand
+	 *     Error: Brand ID not passed
+	 *     Error: Unable to create campaign
+	 *     Error: Unable to create and send campaign
+	 *     Error: Unable to calculate totals
+	 * }
+	 */
+	public function create_campaign( $data )	{
+		$url = $this->api_url . $this->create_campaign_endpoint;
+		$data['api_key'] = $this->api_key;
+		$campaign = $this->post( $url, $data );
+	}
+	
 	/**
 	 * Post to Sendy Endpoints
 	 *
