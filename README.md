@@ -59,6 +59,23 @@ Check a user's list status:
 $sendy->subscriber_status( $email );
 ```
 
+Create and send a campaign:
+```
+// If no API key or List ID is passed, the default value
+// for the initialized class will be used.
+$data = array(
+	'from_name'     => 'Sendy Test',
+	'from_email'    => 'email_from@yourdomain.com',
+	'reply_to'      => 'replyto@yourdomain.com',
+	'title'         => 'My Test Campaign',
+	'subject'       => 'A Sendy Campaign Test',
+	'plain_text'    => 'The plain text content of a Sendy campaign test.',
+	'html_text'     => '<p>The <strong>HTML</strong> text content of a Sendy campaign test</p>',
+	'send_campaign' => 0 // Set to 1 to send campaign
+);
+$result = $sendy->create_campaign( $data );
+```
+
 ## Built With
 
 * [WordPress](https://make.wordpress.org/)

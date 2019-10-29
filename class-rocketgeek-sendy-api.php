@@ -20,7 +20,7 @@
  * This class:         https://github.com/rocketgeek/sendy-api
  * Nick's class:       https://github.com/nickian/Sendy-Extended-PHP-API-Wrapper
  *
- * @package    WP_Members_Sendy
+ * @package    {Your Project Name}
  * @subpackage RocketGeek_Sendy_API
  * @version    1.0.0
  *
@@ -91,13 +91,17 @@ class RocketGeek_Sendy_API {
 	 */
 	public $error;
 	
-	// Endpoints
-	public $subscribe_endpoint = '/subscribe';
-	public $unsubscribe_endpoint = '/unsubscribe';
-	public $delete_endpoint = '/api/subscribers/delete.php';
-	public $subscription_status_endpoint = '/api/subscribers/subscription-status.php';
+	/**
+	 * API Endpoints
+	 *
+	 * @var string
+	 */
+	public $subscribe_endpoint               = '/subscribe';
+	public $unsubscribe_endpoint             = '/unsubscribe';
+	public $delete_endpoint                  = '/api/subscribers/delete.php';
+	public $subscription_status_endpoint     = '/api/subscribers/subscription-status.php';
 	public $active_subscriber_count_endpoint = '/api/subscribers/active-subscriber-count.php';
-	public $create_campaign_endpoint = '/api/campaigns/create.php';
+	public $create_campaign_endpoint         = '/api/campaigns/create.php';
 	
 	/**
 	 * Class constructor.
@@ -291,9 +295,9 @@ class RocketGeek_Sendy_API {
 	 *     @type  string  $plain_text
 	 *     @type  string  $html_text
 	 *     @type  string  $list_ids              (comma-separated)
-	 *     @type  string  $segment_ids           Required only if you set send_campaign to 1 and no list_ids are passed in. Segment IDs should be single or comma-separated. Segment ids can be found in the segments setup page.
-	 *     @type  string  $exclude_list_ids      Lists to exclude from your campaign. List IDs should be single or comma-separated. The encrypted & hashed ids can be found under View all lists section named ID. (optional)
-	 *     @type  string  $exclude_segments_ids  Segments to exclude from your campaign. Segment IDs should be single or comma-separated. Segment ids can be found in the segments setup page. (optional)
+	 *     @type  string  $segment_ids           Required only if send_campaign is 1 & no list_ids are passed. Should be single or comma-separated. IDs are in the segments setup page.
+	 *     @type  string  $exclude_list_ids      Lists to exclude from campaign. Should be single or comma-separated. Encrypted/hashed ids are under View all lists as ID. (optional)
+	 *     @type  string  $exclude_segments_ids  Segments to exclude from campaign. Should be single or comma-separated. IDs are in the segments setup page. (optional)
 	 *     @type  string  $brand_id              (required if you are creating a draft, send_campaign set to 0 or left as default)
 	 *     @type  string  $query_string          eg. Google Analytics tags (optional)
 	 *     @type  string  $send_campaign         (set to 1 if you want to send the campaign)
@@ -322,8 +326,17 @@ class RocketGeek_Sendy_API {
 	 */
 	public function create_campaign( $data )	{
 		$url = $this->api_url . $this->create_campaign_endpoint;
-		$data['api_key'] = $this->api_key;
+
+		if ( ! isset( $data['api_key'] ) ) {
+			$data['api_key'] = $this->api_key;
+		}
+
+		if ( ! isset( $data['list_ids'] ) ) {
+			$data['list_ids'] = $this->list_id;
+		}
+		
 		$campaign = $this->post( $url, $data );
+		return $campaign['body'];
 	}
 	
 	/**
