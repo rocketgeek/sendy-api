@@ -152,7 +152,7 @@ class RocketGeek_Sendy_API {
 				'list_id' => $this->get_list_id( $list_id ),
 				)
 			);
-		return $result['body'];
+		return ( $this->error ) ? $this->error : $result['body'];
 	}
 	
 	/**
@@ -187,7 +187,7 @@ class RocketGeek_Sendy_API {
 				'list_id' => $this->get_list_id( $list_id ),
 			)
 		);
-		return $result['body'];
+		return ( $this->error ) ? $this->error : $result['body'];
 	}
 	
 	/**
@@ -227,7 +227,7 @@ class RocketGeek_Sendy_API {
 			}
 		}
 		$result = $this->post( $this->api_url . $this->subscribe_endpoint, $fields );
-		return $result['body'];
+		return ( $this->error ) ? $this->error : $result['body'];
 	}
 	
 	/**
@@ -251,7 +251,7 @@ class RocketGeek_Sendy_API {
 			'list'    => $this->get_list_id( $list_id ),
 			'boolean' => "true",
 		) );
-		return $result['body'];
+		return ( $this->error ) ? $this->error : $result['body'];
 	}
 	
 	/**
@@ -278,7 +278,7 @@ class RocketGeek_Sendy_API {
 			'email'   => $email, 
 			'list_id' => $this->get_list_id( $list_id ),
 		) );
-		return $result['body'];
+		return ( $this->error ) ? $this->error : $result['body'];
 	}
 
 	/**
@@ -335,8 +335,8 @@ class RocketGeek_Sendy_API {
 			$data['list_ids'] = $this->list_id;
 		}
 		
-		$campaign = $this->post( $url, $data );
-		return $campaign['body'];
+		$result = $this->post( $url, $data );
+		return ( $this->error ) ? $this->error : $result['body'];
 	}
 	
 	/**
