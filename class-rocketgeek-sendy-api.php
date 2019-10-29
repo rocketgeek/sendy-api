@@ -222,8 +222,8 @@ class RocketGeek_Sendy_API {
 					$fields['name'] = $custom_field;
 				} else {
 					$fields[ $custom_field_keys[ $i ] ] = $custom_field;
-					$i++;
 				}
+				$i++;
 			}
 		}
 		$result = $this->post( $this->api_url . $this->subscribe_endpoint, $fields );
