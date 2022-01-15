@@ -144,7 +144,7 @@ class RocketGeek_Sendy_API {
 	 * @param  string  $list_id  List ID to check (optional|default: $this->list_id)
 	 * @return int     $result
 	 */
-	public function subscriber_count( $list_id = false ) {
+	public function get_subscriber_count( $list_id = false ) {
 		$result = $this->post(
 			$this->api_url . $this->active_subscriber_count_endpoint, 
 			$fields = array(
@@ -178,7 +178,7 @@ class RocketGeek_Sendy_API {
 	 *     Error: Email does not exist in list
 	 * }
 	 */
-	public function subscriber_status( $email, $list_id = false ) {
+	public function get_subscriber_status( $email, $list_id = false ) {
 		$result  = $this->post(
 			$this->api_url . $this->subscription_status_endpoint, 
 			$fields = array(
