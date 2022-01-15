@@ -80,12 +80,12 @@ Possible results:
 
 ### Get the subscriber count
 ```
-$sendy->subscriber_count( $list_id );
+$sendy->get_subscriber_count( $list_id );
 ```
 
 ### Check user status
 ```
-$sendy->subscriber_status( $email );
+$sendy->get_subscriber_status( $email );
 ```
 
 ### Create and send a campaign
