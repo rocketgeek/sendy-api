@@ -46,7 +46,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 // Exit if accessed directly.
@@ -55,6 +55,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 class RocketGeek_Sendy_API {
+	
+	/**
+	 * This class version
+	 *
+	 * @var string
+	 */
+	public $version = "1.0.0";
 	
 	/**
 	 * The Sendy API key
@@ -348,22 +355,43 @@ class RocketGeek_Sendy_API {
 	 * @param  array   $fields
 	 * @return string  $result
 	 */
-	private function post( $enpoint, $fields ) {
+	private function post( $endpoint, $fields ) {
 		
 		if ( $this->use_curl ) {
-			$response = $this->curl_post( $enpoint, $fields );
+			$response = $this->curl_post( $endpoint, $fields );
 		} else {
-			$response = wp_remote_post( esc_url_raw( $enpoint ), array(
-				'method' => 'POST',
-				'timeout' => 45,
+			$remote_post_args = array(
+				'method'      => 'POST',
+				'timeout'     => 45,
 				'redirection' => 5,
 				'httpversion' => '1.0',
-				'blocking' => true,
-				'headers' => array(),
-				'body' => $fields,
-				'cookies' => array()
-				)
+				'blocking'    => true,
+				'headers'     => array(),
+				'body'        => $fields,
+				'cookies'     => array()
 			);
+			/**
+			 * Filters settings for wp_remote_post()
+			 *
+			 * @see https://developer.wordpress.org/reference/functions/wp_remote_post/
+			 *
+			 * @since 1.0.0
+			 *
+			 * @param  array  {
+			 *    The wp_remote_post setting vars.
+			 *
+			 *    @type string $method
+			 *    @type string $timeout
+			 *    @type string $redirection
+			 *    @type string $httpverions
+			 *    @type string $blocking
+			 *    @type string $headers
+			 *    @type string $body
+			 *    @type string $cookies
+			 * }
+			 */
+			$remote_post_args = apply_filters( 'sendy_api_wp_remote_post', $remote_post_args );
+			$response = wp_remote_post( esc_url_raw( $endpoint ), $remote_post_args	);
 		}
 		
 		if ( is_wp_error( $response ) ) {
@@ -383,10 +411,10 @@ class RocketGeek_Sendy_API {
 	 * @param  array   $fields
 	 * @return string  $result
 	 */
-	private function curl_post( $url, $fields ) {
+	private function curl_post( $endpoint, $fields ) {
 		$ch = curl_init();
 		curl_setopt_array( $ch, array(
-			CURLOPT_URL => $url,
+			CURLOPT_URL => $endpoint,
 			CURLOPT_RETURNTRANSFER => TRUE,
 			CURLOPT_POSTFIELDS => http_build_query( $fields )
 		));

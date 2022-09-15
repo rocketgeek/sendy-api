@@ -154,7 +154,7 @@ I do accept pull requests. However, make sure your pull request is properly form
 
 ## Versioning
 
-I use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/rocketgeek/jquery_tabs/tags). 
+I use [SemVer](https://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/rocketgeek/jquery_tabs/tags). 
 
 ## Authors
 
