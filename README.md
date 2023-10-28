@@ -163,6 +163,6 @@ I use [SemVer](https://semver.org/) for versioning. For the versions available, 
 
 ## License
 
-This project is licensed under the GPL v3 License - see the [LICENSE.md](LICENSE.md) file for details.
+This project is licensed under the Apache License, Version 2.0 - see the [LICENSE.md](LICENSE.md) file for details.
 
 I hope you find this project useful. If you use it your project, attribution is appreciated.

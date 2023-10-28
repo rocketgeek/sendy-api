@@ -22,31 +22,27 @@
  *
  * @package    {Your Project Name}
  * @subpackage RocketGeek_Sendy_API
- * @version    1.0.0
+ * @version    1.1.0
  *
  * @link       https://github.com/rocketgeek/sendy-api/
  * @author     Chad Butler <https://butlerblog.com>
  * @author     RocketGeek <https://rocketgeek.com>
- * @copyright  Copyright (c) 2019 Chad Butler
- * @license    https://github.com/rocketgeek/jquery_tabs/blob/master/LICENSE.md GNU General Public License 3
+ * @copyright  Copyright (c) 2019-2023 Chad Butler
+ * @license    https://github.com/rocketgeek/jquery_tabs/blob/master/LICENSE.md Apache-2.0
  *
- * Copyright (c) 2019 Chad Butler, RocketGeek
+ * Copyright (c) 2023 Chad Butler, RocketGeek
  *
- * This library is open source and GPL licensed. I hope you find it useful
- * for your project(s). Attribution is appreciated ;-)
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 // Exit if accessed directly.
@@ -61,7 +57,7 @@ class RocketGeek_Sendy_API {
 	 *
 	 * @var string
 	 */
-	public $version = "1.0.0";
+	public $version = "1.1.0";
 	
 	/**
 	 * The Sendy API key
@@ -99,18 +95,6 @@ class RocketGeek_Sendy_API {
 	public $error;
 	
 	/**
-	 * API Endpoints
-	 *
-	 * @var string
-	 */
-	public $subscribe_endpoint               = '/subscribe';
-	public $unsubscribe_endpoint             = '/unsubscribe';
-	public $delete_endpoint                  = '/api/subscribers/delete.php';
-	public $subscription_status_endpoint     = '/api/subscribers/subscription-status.php';
-	public $active_subscriber_count_endpoint = '/api/subscribers/active-subscriber-count.php';
-	public $create_campaign_endpoint         = '/api/campaigns/create.php';
-	
-	/**
 	 * Class constructor.
 	 *
 	 * @since 0.1.0
@@ -132,6 +116,17 @@ class RocketGeek_Sendy_API {
 	}
 
 	/**
+	 * Returns the API key.
+	 * 
+	 * @since 1.0.1
+	 * 
+	 * @return string $api_key
+	 */
+	public function get_api_key() {
+		return $this->api_key;
+	}
+
+	/**
 	 * Determines the list ID.
 	 *
 	 * @since 0.1.0
@@ -141,6 +136,26 @@ class RocketGeek_Sendy_API {
 	 */
 	public function get_list_id( $list_id ) {
 		return ( $list_id ) ? $list_id : $this->list_id;
+	}
+
+	/**
+	 * Get full URL for endpoint.
+	 * 
+	 * @since 1.1.0
+	 * 
+	 * @param  string  $endpoint     The endpoint to assemble.
+	 * @return string  $endpoint_url The full URL of the endpoint.
+	 */
+	private function get_endpoint_url( $endpoint ) {
+		$endpoints = array( 
+			'subscribe'               => '/subscribe',
+			'unsubscribe'             => '/unsubscribe',
+			'delete'                  => '/api/subscribers/delete.php',
+			'subscription_status'     => '/api/subscribers/subscription-status.php',
+			'active_subscriber_count' => '/api/subscribers/active-subscriber-count.php',
+			'create_campaign'         => '/api/campaigns/create.php',
+		);
+		return $this->api_url . $endpoints[ $endpoint ];
 	}
 	
 	/**
@@ -153,12 +168,12 @@ class RocketGeek_Sendy_API {
 	 */
 	public function get_subscriber_count( $list_id = false ) {
 		$result = $this->post(
-			$this->api_url . $this->active_subscriber_count_endpoint, 
-			$fields = array(
-				'api_key' => $this->api_key, 
+			$this->get_endpoint_url( 'active_subscriber_count' ), 
+			array(
+				'api_key' => $this->get_api_key(), 
 				'list_id' => $this->get_list_id( $list_id ),
-				)
-			);
+			)
+		);
 		return ( $this->error ) ? $this->error : $result['body'];
 	}
 	
@@ -187,9 +202,9 @@ class RocketGeek_Sendy_API {
 	 */
 	public function get_subscriber_status( $email, $list_id = false ) {
 		$result  = $this->post(
-			$this->api_url . $this->subscription_status_endpoint, 
-			$fields = array(
-				'api_key' => $this->api_key, 
+			$this->get_endpoint_url( 'subscription_status' ), 
+			array(
+				'api_key' => $this->get_api_key(), 
 				'email'   => $email, 
 				'list_id' => $this->get_list_id( $list_id ),
 			)
@@ -216,7 +231,7 @@ class RocketGeek_Sendy_API {
 	 */
 	public function subscribe( $email, $custom_fields = false, $list_id = false ) {
 		$fields = array(
-			'api_key' => $this->api_key,
+			'api_key' => $this->get_api_key(),
 			'email'   => $email, 
 			'list'    => $this->get_list_id( $list_id ),
 			'boolean' => "true",
@@ -233,7 +248,7 @@ class RocketGeek_Sendy_API {
 				$i++;
 			}
 		}
-		$result = $this->post( $this->api_url . $this->subscribe_endpoint, $fields );
+		$result = $this->post( $this->get_endpoint_url( 'subscribe' ), $fields );
 		return ( $this->error ) ? $this->error : $result['body'];
 	}
 	
@@ -252,12 +267,15 @@ class RocketGeek_Sendy_API {
 	 * }
 	 */
 	public function unsubscribe( $email, $list_id = false ) {
-		$result = $this->post( $this->api_url . $this->unsubscribe_endpoint, $fields = array(
-			'api_key' => $this->api_key, 
-			'email'   => $email, 
-			'list'    => $this->get_list_id( $list_id ),
-			'boolean' => "true",
-		) );
+		$result = $this->post( 
+			$this->get_endpoint_url( 'unsubscribe' ),
+			array(
+				'api_key' => $this->api_key, 
+				'email'   => $email, 
+				'list'    => $this->get_list_id( $list_id ),
+				'boolean' => "true",
+			)
+		);
 		return ( $this->error ) ? $this->error : $result['body'];
 	}
 	
@@ -280,11 +298,14 @@ class RocketGeek_Sendy_API {
 	 * }
 	 */
 	public function delete( $email, $list_id = false ) {
-		$result = $this->post( $this->api_url . $this->delete_endpoint, $fields = array(
-			'api_key' => $this->api_key, 
-			'email'   => $email, 
-			'list_id' => $this->get_list_id( $list_id ),
-		) );
+		$result = $this->post( 
+			$this->get_endpoint_url( 'delete' ), 
+			array(
+				'api_key' => $this->get_api_key(), 
+				'email'   => $email, 
+				'list_id' => $this->get_list_id( $list_id ),
+			)
+		);
 		return ( $this->error ) ? $this->error : $result['body'];
 	}
 
@@ -332,10 +353,10 @@ class RocketGeek_Sendy_API {
 	 * }
 	 */
 	public function create_campaign( $data )	{
-		$url = $this->api_url . $this->create_campaign_endpoint;
+		$url = $this->get_endpoint_url( 'create_campaign' );
 
 		if ( ! isset( $data['api_key'] ) ) {
-			$data['api_key'] = $this->api_key;
+			$data['api_key'] = $this->get_api_key();
 		}
 
 		if ( ! isset( $data['list_ids'] ) ) {
